@@ -22,8 +22,11 @@ STACK_SEG		ENDS
 	
 ; DATA SEGMENT
 DATA_SEG        SEGMENT 
+	DD	256	DUP(?) ; INTERRUPTS
 	requested_floor  db	0H	
-	current_floor	db	0H
+	current_floor	db	0AH
+	db 20 DUP(?)
+	TOS LABEL WORD
 DATA_SEG        ENDS
 
 
@@ -120,6 +123,11 @@ START:
 	; YOUR CODE HERE ...
 	; GOOD LUCK!
 	;initialise 8255
+;initialise stack segment
+;	MOV AX, STACK_SEG
+;	MOV SS,AX
+	MOV BX,OFFSET TOS
+	MOV SP,BX
 	
 	MOV AL,082H;1000 0010 VALUE OF CWR
 	MOV DX,PPI8255+3; CWR
