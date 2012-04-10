@@ -127,6 +127,7 @@ INPUT:
 	;MOV AH,0FH
 	;AND AL,AH ;TOP 4 BITS PULLED DOWN FOR NOW(0-9)
 	;MOV BH,AL; REQUESTED FLOOR MOVED TO BH
+	
 		
 OUTPUT:
 	mov al,bh
@@ -141,8 +142,15 @@ BCDOUTPUT:
 	CMP Bl,Bh
 	JL GOUP
 	JG GODOWN
-	JMP MOVED
+	JMP EQUAL
 GOUP:
+	cli
+	mov cl,010000000B
+	and cl,al
+	 
+	mov dx,PPI8255;port A
+	out dx,al
+
 	MOV AL,BL
 	INC AL
 	;DAA
@@ -159,19 +167,26 @@ ALRIGHTY:
 	
 	JMP MOVED
 GODOWN:
+	cli
+	mov al,0FH
+	mov dx,PPI8255;port A
+	out dx,al
+
 	MOV AL,BL
 	DEC AL
 	;DAS
 	MOV CL,AL
 	AND CL,0FH
-	CMP CL,0H ; going down compare last 4 bits with 0
+	CMP CL,0FH ; going down compare last 4 bits with 0
 	JNZ ALRIGHTYSUB
 	MOV CH,06
 	SUB AL,CH
 	
 ALRIGHTYSUB:
 	MOV BL,AL
- 
+	JMP MOVED
+EQUAL:
+	sti 
 	
 MOVED:
 ;	DELAY;BITCH HERE
@@ -190,6 +205,9 @@ INT0ISR:
 	CLI
 	MOV DX,PPI8255+1;PORTB
 	IN	AL,DX ;AL IS A BCD NO.
+		
+	mov cl,04;
+	ROL AL,cl
 	;MOV AH,0FH
 	;AND AL,AH ;TOP 4 BITS PULLED DOWN FOR NOW(0-9)
 	MOV BH,AL; REQUESTED FLOOR MOVED TO BH
