@@ -137,19 +137,21 @@ BCDOUTPUT:
 	JMP EQUAL
 GOUP:
 	CLI
-	LEA CL,PREV_led
-	CMP CL,01 
+	LEA si,PREV_led
+	CMP si,01 
 	JNE ledUP
 	mov al,0F0H
 	mov dx,PPI8255
 	out dx,al
-	mov [cl],0H
+	mov cl,0h
+	mov [si],cl
 	jmp out_currentfloor1
 	ledUP:
 	mov al,0H
 	mov dx,PPI8255
 	out dx,al
-	
+	mov cl,01
+	mov [si],cl
 out_currentfloor1:	
 	MOV AL,BL
 	INC AL
@@ -168,19 +170,21 @@ ALRIGHTY:
 	JMP MOVED
 GODOWN:
 	cli
-	LEA CL,PREV_led
-	CMP CL,01 
+	LEA si,PREV_led
+	CMP si,01 
 	JNE ledUP1
 	mov al,0FH
 	mov dx,PPI8255
 	out dx,al
-	mov [cl],0H
+	mov cl,0h
+	mov [si],cl
 	jmp out_currentfloor2
 	ledUP1:
 	mov al,0H
 	mov dx,PPI8255
 	out dx,al
-	
+	mov cl,01
+	mov [si],cl
 out_currentfloor2:	
 	MOV AL,BL
 	DEC AL
