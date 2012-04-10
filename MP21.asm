@@ -37,7 +37,7 @@ DATA_SEG        SEGMENT
 	DD	64	DUP(?) ;STACK BUFFER
 	requested_floor  db	0H	
 	current_floor	db	0AH
-	
+	prev_led	db	0H; 
 	
 	
 DATA_SEG        ENDS
@@ -89,15 +89,7 @@ START:
 	MOV AX,I0CON_VAL
 	OUT DX,AX
 	
-	;MOV DX,I0MASK
-	;MOV AX,I0MASK_VAL
-	;OUT DX,AX
-	; YOUR CODE HERE ...
-	; GOOD LUCK!
-	;initialise 8255
-;initialise stack segment
-;	MOV AX, STACK_SEG
-;	MOV SS,AX
+
 	STI
 	MOV AX,DATA_SEG
 	MOV DS,AX; MOVES DATASEGMENT TO 0000H
@@ -144,13 +136,21 @@ BCDOUTPUT:
 	JG GODOWN
 	JMP EQUAL
 GOUP:
-	cli
-	mov cl,010000000B
-	and cl,al
-	 
-	mov dx,PPI8255;port A
+	CLI
+	LEA CL,PREV_led
+	CMP CL,01 
+	JNE ledUP
+	mov al,0F0H
+	mov dx,PPI8255
 	out dx,al
-
+	mov [cl],0H
+	jmp out_currentfloor1
+	ledUP:
+	mov al,0H
+	mov dx,PPI8255
+	out dx,al
+	
+out_currentfloor1:	
 	MOV AL,BL
 	INC AL
 	;DAA
@@ -168,10 +168,20 @@ ALRIGHTY:
 	JMP MOVED
 GODOWN:
 	cli
+	LEA CL,PREV_led
+	CMP CL,01 
+	JNE ledUP1
 	mov al,0FH
-	mov dx,PPI8255;port A
+	mov dx,PPI8255
 	out dx,al
-
+	mov [cl],0H
+	jmp out_currentfloor2
+	ledUP1:
+	mov al,0H
+	mov dx,PPI8255
+	out dx,al
+	
+out_currentfloor2:	
 	MOV AL,BL
 	DEC AL
 	;DAS
